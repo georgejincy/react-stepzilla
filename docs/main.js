@@ -4,8 +4,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _StepZilla$propTypes;
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -25,8 +23,6 @@ var _promise = require('promise');
 var _promise2 = _interopRequireDefault(_promise);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -101,28 +97,31 @@ var StepZilla = function (_Component) {
   }, {
     key: 'getPrevNextBtnState',
     value: function getPrevNextBtnState(currentStep) {
-      var correctNextText = this.props.nextButtonText;
+      // first set default values
+      var showPreviousBtn = true;
+      var showNextBtn = true;
+      var nextStepText = this.props.nextButtonText;
 
-      if (currentStep > 0 && currentStep !== this.props.steps.length - 1) {
-        if (currentStep === this.props.steps.length - 2) {
-          correctNextText = this.nextTextOnFinalActionStep; // we are in the one before final step
-        }
-        return {
-          showPreviousBtn: true,
-          showNextBtn: true,
-          nextStepText: correctNextText
-        };
-      } else if (currentStep === 0) {
-        return {
-          showPreviousBtn: false,
-          showNextBtn: true,
-          nextStepText: correctNextText
-        };
+      // first step hide previous btn
+      if (currentStep === 0) {
+        showPreviousBtn = false;
       }
+
+      // second to last step change next btn text if supplied as props
+      if (currentStep === this.props.steps.length - 2) {
+        nextStepText = this.props.nextTextOnFinalActionStep || nextStepText;
+      }
+
+      // last step hide next btn, hide previous btn if supplied as props
+      if (currentStep >= this.props.steps.length - 1) {
+        showNextBtn = false;
+        showPreviousBtn = this.props.prevBtnOnLastStep === false ? false : true;
+      }
+
       return {
-        showPreviousBtn: this.props.prevBtnOnLastStep,
-        showNextBtn: false,
-        nextStepText: correctNextText
+        showPreviousBtn: showPreviousBtn,
+        showNextBtn: showNextBtn,
+        nextStepText: nextStepText
       };
     }
 
@@ -130,8 +129,12 @@ var StepZilla = function (_Component) {
 
   }, {
     key: 'checkNavState',
-    value: function checkNavState(currentStep) {
-      this.setState(this.getPrevNextBtnState(currentStep));
+    value: function checkNavState(nextStep) {
+      if (this.props.onStepChange) {
+        this.props.onStepChange(nextStep);
+      }
+
+      this.setState(this.getPrevNextBtnState(nextStep));
     }
 
     // set the nav state
@@ -175,7 +178,7 @@ var StepZilla = function (_Component) {
       } else {
         var _ret = function () {
           // the main navigation step ui is invoking a jump between steps
-          if (!_this3.props.stepsNavigation || evt.target.value == _this3.state.compState) {
+          if (!_this3.props.stepsNavigation || evt.target.value === _this3.state.compState) {
             // if stepsNavigation is turned off or user clicked on existing step again (on step 2 and clicked on 2 again) then ignore
             evt.preventDefault();
             evt.stopPropagation();
@@ -385,6 +388,8 @@ var StepZilla = function (_Component) {
     value: function render() {
       var _this6 = this;
 
+      var props = this.props;
+
       var compToRender = void 0;
 
       // clone the step component dynamically and tag it as activeComponent so we can validate it on next. also bind the jumpToStep piping method
@@ -420,20 +425,26 @@ var StepZilla = function (_Component) {
           { style: this.props.showNavigation ? {} : this.hidden, className: 'footer-buttons' },
           _react2.default.createElement(
             'button',
-            { style: this.state.showPreviousBtn ? {} : this.hidden,
-              className: 'btn btn-prev btn-primary btn-lg pull-left',
+            {
+              style: this.state.showPreviousBtn ? {} : this.hidden,
+              className: props.backButtonCls,
               onClick: function onClick() {
                 _this6.previous();
-              } },
+              },
+              id: 'prev-button'
+            },
             this.props.backButtonText
           ),
           _react2.default.createElement(
             'button',
-            { style: this.state.showNextBtn ? {} : this.hidden,
-              className: 'btn btn-next btn-primary btn-lg pull-right',
+            {
+              style: this.state.showNextBtn ? {} : this.hidden,
+              className: props.nextButtonCls,
               onClick: function onClick() {
                 _this6.next();
-              } },
+              },
+              id: 'next-button'
+            },
             this.state.nextStepText
           )
         )
@@ -456,11 +467,13 @@ StepZilla.defaultProps = {
   preventEnterSubmission: false,
   startAtStep: 0,
   nextButtonText: "Next",
+  nextButtonCls: "btn btn-prev btn-primary btn-lg pull-right",
   backButtonText: "Previous",
+  backButtonCls: "btn btn-next btn-primary btn-lg pull-left",
   hocValidationAppliedTo: []
 };
 
-StepZilla.propTypes = (_StepZilla$propTypes = {
+StepZilla.propTypes = {
   steps: _propTypes2.default.arrayOf(_propTypes2.default.shape({
     name: _propTypes2.default.string.isRequired,
     component: _propTypes2.default.element.isRequired
@@ -470,5 +483,12 @@ StepZilla.propTypes = (_StepZilla$propTypes = {
   stepsNavigation: _propTypes2.default.bool,
   prevBtnOnLastStep: _propTypes2.default.bool,
   dontValidate: _propTypes2.default.bool,
-  preventEnterSubmission: _propTypes2.default.bool
-}, _defineProperty(_StepZilla$propTypes, 'preventEnterSubmission', _propTypes2.default.bool), _defineProperty(_StepZilla$propTypes, 'startAtStep', _propTypes2.default.number), _defineProperty(_StepZilla$propTypes, 'nextButtonText', _propTypes2.default.string), _defineProperty(_StepZilla$propTypes, 'backButtonText', _propTypes2.default.string), _defineProperty(_StepZilla$propTypes, 'hocValidationAppliedTo', _propTypes2.default.array), _StepZilla$propTypes);
+  preventEnterSubmission: _propTypes2.default.bool,
+  startAtStep: _propTypes2.default.number,
+  nextButtonText: _propTypes2.default.string,
+  nextButtonCls: _propTypes2.default.string,
+  backButtonCls: _propTypes2.default.string,
+  backButtonText: _propTypes2.default.string,
+  hocValidationAppliedTo: _propTypes2.default.array,
+  onStepChange: _propTypes2.default.func
+};

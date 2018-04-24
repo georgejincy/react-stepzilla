@@ -30,7 +30,13 @@ export default class Step1 extends Component {
                 <div className="col-md-12">
                   <div className="col-md-6">
                     <h3>This example uses this custom config (which overwrites the default config):</h3>
-                    <code>preventEnterSubmission=true<br />nextTextOnFinalActionStep="Save"<br />hocValidationAppliedTo=[3]</code>
+                    <code>
+                        preventEnterSubmission=true<br />
+                        nextTextOnFinalActionStep="Save"<br />
+                        hocValidationAppliedTo=[3]<br />
+                        startAtStep=window.sessionStorage.getItem('step') ? parseFloat(window.sessionStorage.getItem('step')) : 0<br />
+                        onStepChange=(step) => window.sessionStorage.setItem('step', step)
+                    </code>
                   </div>
                   <div className="col-md-6">
                     <h3>The default config settings are...</h3>
@@ -44,6 +50,8 @@ export default class Step1 extends Component {
                       startAtStep=0<br />
                       nextButtonText='Next'<br />
                       backButtonText='Previous'<br />
+                      nextButtonCls='btn btn-prev btn-primary btn-lg pull-right'<br />
+                      backButtonCls='btn btn-next btn-primary btn-lg pull-left'<br />
                       nextTextOnFinalActionStep='[default value of nextButtonText]'<br />
                       hocValidationAppliedTo: []
                     </code>

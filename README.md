@@ -1,8 +1,9 @@
 # react stepzilla [![npm version](https://badge.fury.io/js/react-stepzilla.svg)](https://badge.fury.io/js/react-stepzilla)
-is a multi-step, wizard component for sequential data collection. It basically lets you throw a bunch of react components at it (data forms, text / html components etc) and it will take the user through those components in steps. If it's a data-entry form it can tigger validation and only proceed if the data is valid.
+is a multi-step, wizard component for sequential data collection. It basically lets you throw a bunch of react components at it (data forms, text / html components etc) and it will take the user through those components in steps. If it's a data-entry form it can trigger validation and only proceed if the data is valid.
 
 #### :tada: whats new:
 ```
+v4.7.2: optimised react, react-dom dependency loading (peerDependencies)
 v4.5.0: ported to react and react-dom 15.5.4
 v4.3.0: now supporting higer order component based validation via react-validation-mixin!
 v4.2.0: now supporting pure, dumb components!
@@ -80,11 +81,20 @@ nextButtonText: "Siguiente"
 // specify the back button text (if not given it default to "Previous")
 backButtonText: "Espalda"
 
+// specify the next button class (if not given it defaults to "btn btn-prev btn-primary btn-lg" which depends on bootstrap)
+nextButtonCls: "btn btn-prev btn-primary btn-lg pull-right"
+
+// specify the back button text (if not given it default to "btn btn-next btn-primary btn-lg")
+backButtonCls: "btn btn-next btn-primary btn-lg pull-left"
+
 // specify what the next button text should be in the step before the last (This is usually the last "Actionable" step. You can use this option to change the Next button to say Save - if you save the form data collected in previous steps)
 nextTextOnFinalActionStep: "Save"
 
 // its recommended that you use basic javascript validation (i.e simple validation implemented inside your step component. But stepzilla steps can also use 'react-validation-mixin' which wraps your steps as higher order components. If you use this then you need to specify those steps indexes that use 'react-validation-mixin' below in this array)
 hocValidationAppliedTo: [1, 2]
+
+// function, which is called every time the index of the current step changes (it uses a zero based index)
+onStepChange: (step) => console.log(step)
 
 ```
 
@@ -101,6 +111,8 @@ example options usage:
 - *validation can also be Async and therefore Promise based. This is useful if you do server side validation or you want to save data to a server and only proceed if it was a success. For an e.g. on this have a look at the `src/examples/Step5` component.*
 
 - *also if you want some default style, copy the source from `src/css/main.css` code into your project (the above look in the picture also requires bootstrap)*
+
+- *check out `src/examples/` for how `onStepChange` can be used to persist last known step state across browser reloads (using `startAtStep` pulled from session storage)*
 
 #### jumpToStep() utility
 - stepzilla injects an utility method called `jumpToStep` as a prop into all your react step components
@@ -145,20 +157,23 @@ A full example is found in the `src/examples` directory.
 - all code is run against coverage, not just the unit tested modules
 - test coverage improvement is currently a work in progress
 
-Current coverage sitting at v4.4.4:
+Current coverage sitting at v4.7.2:
 ```
-Statements   : 83.72% ( 144/172 ), 11 ignored
-Branches     : 73.03% ( 111/152 ), 23 ignored
-Functions    : 82.22% ( 37/45 ), 4 ignored
-Lines        : 77.78% ( 91/117 )
+Statements   : 87.43% ( 160/183 ), 11 ignored
+Branches     : 76.07% ( 124/163 ), 23 ignored
+Functions    : 84.78% ( 39/46 ), 3 ignored
+Lines        : 83.33% ( 105/126 )
 ```
 
 ### dev todo
 - ~~write the tests~~
 - improve code coverage
 
+### community dev tips
+our brilliant community sometimes solves implementation issues themselves, head over to the [Useful Dev Tips](https://github.com/newbreedofgeek/react-stepzilla/wiki/Useful-Dev-Tips) page for a curated list of the most useful tips. For e.g. ***How to persist Step State on "Previous/Back" button click*** or ***How to hide navigation buttons in some steps***
+
 ### help us improve stepzilla?
-do you have any ideas for new features or improvements to stepzilla? we would love to hear from you. head over to the [issues section here](https://github.com/newbreedofgeek/react-stepzilla/issues) and raise a new thread about what you would like. make sure you include some use cases for your request.
+do you have any ideas for new features or improvements to stepzilla? we would love to hear from you. head over to the [issues section here](https://github.com/newbreedofgeek/react-stepzilla/issues) and raise a new thread about what you would like. make sure you include some use cases for your request, or ***upvote*** [existing community requests here](https://github.com/newbreedofgeek/react-stepzilla/issues?q=is%3Aissue+is%3Aopen+label%3A%22UpVotes+Needed%22)
 
 ### known issues
 - open bugs [are here](https://github.com/newbreedofgeek/react-stepzilla/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Abug)
